@@ -6,7 +6,7 @@ const fetchCurrentUser = async (dispatch) => {
   try {
     const { data } = await api.get("/me");
     dispatch(setUserData(data))
-    console.log(data);
+    console.log("data :",data);
     return data;
   } catch (error) {
     console.log("Status:", error.response?.status);

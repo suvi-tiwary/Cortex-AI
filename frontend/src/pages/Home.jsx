@@ -10,7 +10,7 @@ import ChatSection from '../components/ChatSection';
 
 const Home = () => {
   const dispatch = useDispatch()
-  const userData = useSelector((state) => state.user)
+  const userData = useSelector((state) => state.user.userData)
   
   const googleLogin = async () => {
     let data = await signInWithPopup(auth, googleProvider)

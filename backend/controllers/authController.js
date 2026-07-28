@@ -26,6 +26,12 @@ export const Login = async(req,res)=>{
         name:user.name,
         email:user.email
     }),"EX",7*24*60*60)
+
+    console.log("SESSION CREATED:", sessionId)
+
+const testSession = await redis.get(`sessionId-${sessionId}`)
+console.log("SESSION FROM REDIS:", testSession)
+
     res.cookie("sessionId",sessionId,{
         httpOnly:true,
         sameSite:"strict",

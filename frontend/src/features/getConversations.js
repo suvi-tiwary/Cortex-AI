@@ -1,10 +1,12 @@
+import { setConversations } from "../redux/conversationSlice"
 import api from "./axios"
 
-export const getConversations = async()=>{
+export const getConversations = async(dispatch)=>{
     try {
-      const data = await api.get("/get-conversations")
-      console.log(data)
+      const data = await api.get("/chat/get-conversations")
+      dispatch(setConversations(data.data))
+      console.log(data.data)
     } catch (error) {
-      console.log("get conversation error")
+      console.log(`get conversation error ${error}`)
     }
 }

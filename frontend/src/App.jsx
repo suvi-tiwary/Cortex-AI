@@ -3,8 +3,8 @@ import React from 'react'
 import Home from './pages/Home'
 import { useEffect } from 'react'
 import fetchCurrentUser from './features/fetchCurrentUser'
-import { useDispatch } from 'react-redux'
 import { getConversations } from './features/getConversations'
+import { useDispatch } from 'react-redux'
 
 
 const App = () => {
@@ -12,16 +12,16 @@ const App = () => {
 
   useEffect(()=>{
     const getUser = async()=>{
-      await fetchCurrentUser(dispatch())
+      await fetchCurrentUser(dispatch)
     }
     getUser()
   },[])
 
   useEffect(()=>{
     const conversations = async()=>{
-      await getConversations(dispatch())
+      await getConversations(dispatch)
     }
-    getUser()
+    conversations()
   },[])
   return (
     <Home/>

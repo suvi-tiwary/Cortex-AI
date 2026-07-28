@@ -2,16 +2,17 @@ import React from 'react';
 import { FaHamburger } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { FiLogOut } from "react-icons/fi";
-import { useDispatch } from "react-redux"
-import { addConversation } from '../redux/conversationSlice';
+import { useDispatch, useSelector } from "react-redux"
+import { addConversation, setSelectedConversation } from '../redux/conversationSlice';
 import api from '../features/axios';
 
 const Sidebar = () => {
   const dispatch = useDispatch()
+  const {conversations,selectedConversation} = useSelector(state=>state.conversation)
   const createConversation = async()=>{
     try {
-      let data = await api.get("/create-coversation")
-      dispatch(addConversation(data))
+      let data = await api.get("/chat/create-conversation")
+      dispatch(addConversation(data.data))
 
     } catch (error) {
       console.log(`create coversation fetching error ${error}`)
@@ -44,16 +45,19 @@ const Sidebar = () => {
         </button>
       </div>
 
-      {/* Recent Conversations Label */}
       <div className='px-4 pb-2'>
         <span className='text-white/40 text-[11px] font-semibold uppercase tracking-wider'>
           Recent Conversations
         </span>
       </div>
 
-      {/* Conversations Area (flex-1 pushes footer down) */}
       <div className='flex-1 overflow-y-auto px-2 custom-scrollbar'>
-        {/* Add your conversation items here later */}
+         {conversations.map((conv,i)=>{
+           const isActive = selectedConversation?._id==conv?._id
+           return <div key={conv._id} className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] transition-colors duration-100 ${isActive?"bg-indigo-500/10 border-indigo-500/[0.18]":"bg-transparent border-transparent"}`} onClick={()=>dispatch(setSelectedConversation(conv))}>
+                <span>{conv.title || "New Chat"}</span>
+           </div>
+         })}
       </div>
 
       {/* Footer - Always at bottom */}
