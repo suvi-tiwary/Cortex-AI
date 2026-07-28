@@ -1,0 +1,33 @@
+import express from "express"
+import cookieParser from "cookie-parser"
+import dotenv from "dotenv"
+dotenv.config()
+import authRouter from "./routers/authRoute.js"
+import cors from "cors"
+import connectDb from "./config/db.js"
+import { protect } from "./middleware/auth.js"
+import getCurrentUserRoute from "./routers/getCurrentUserRoute.js"
+import chatRouter from "./routers/chatRoute.js"
+
+
+const app =express()
+const port = 3000
+
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}))
+app.use(express.json())
+app.use(cookieParser())
+
+app.use("/auth",authRouter)
+app.use("/",protect,getCurrentUserRoute)
+app.use("/chat",protect,chatRouter)
+
+app.listen(port,()=>{
+    console.log(`server started at port ${port}`)
+    connectDb()
+})
+
+
+
