@@ -1,6 +1,7 @@
 import React from 'react';
 import { Send,  Bot,  User, Code2,  FileText,  Image as ImageIcon,  Search, Presentation,  Zap, Mic, Paperclip,ThumbsUp,ThumbsDown,Copy,RotateCcw
 } from 'lucide-react';
+import api from '../features/axios';
 
 const MODES = [
   { id: 'auto', label: 'Auto', icon: Zap },
@@ -12,7 +13,9 @@ const MODES = [
   { id: 'search', label: 'Search', icon: Search },
 ];
 
+
 const ChatSection = () => {
+  
   return (
     <div className="flex-1 flex flex-col h-screen bg-[#0d0d12] relative overflow-hidden">
       {/* Ambient Background */}
@@ -26,6 +29,7 @@ const ChatSection = () => {
         {/* Empty State */}
         <div className="flex flex-col items-center justify-center h-full px-6 pt-[-40px]">
           <div className="text-center max-w-2xl mx-auto -mt-16">
+            <h1 className='text-4xl font-bold text-white mb-3 tracking-tight'>Cortext AI</h1>
             <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
               How can I help you?
             </h1>

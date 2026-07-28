@@ -2,8 +2,22 @@ import React from 'react';
 import { FaHamburger } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { FiLogOut } from "react-icons/fi";
+import { useDispatch } from "react-redux"
+import { addConversation } from '../redux/conversationSlice';
+import api from '../features/axios';
 
 const Sidebar = () => {
+  const dispatch = useDispatch()
+  const createConversation = async()=>{
+    try {
+      let data = await api.get("/create-coversation")
+      dispatch(addConversation(data))
+
+    } catch (error) {
+      console.log(`create coversation fetching error ${error}`)
+    }
+  }
+  
   return (
     <div className='w-[270px] h-screen flex flex-col
       bg-[#0a0a0f]/80 backdrop-blur-xl 
@@ -20,7 +34,7 @@ const Sidebar = () => {
       <div className='w-full h-[1px] bg-white/[0.08]'></div>
        
       {/* New Chat Button */}
-      <div className='p-4'>
+      <div className='p-4' onClick={()=>createConversation()}>
         <button className='w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 
           hover:from-violet-500 hover:to-fuchsia-500
           rounded-xl flex items-center justify-center gap-2
