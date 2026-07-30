@@ -3,11 +3,11 @@ import Message from "../models/MessageModel.js"
 
 export const createConversation = async(req,res)=>{
     try {
-        const userid= req.user.userid
+        const userId = req.user.userId
         const conversation = await Conversation.create({
-            userid,
-            title:'New chat',
-            message:[]
+            userId,
+            title: 'New chat',
+            message: []
         })
 
         return res.status(201).send(conversation)
@@ -45,11 +45,22 @@ export const saveMessage = async(req,res)=>{
         let {conversationId,role,content}=req.body
         const message = await Message.create({
             role,
-            content
+            content,
+            conversationId
         })
 
         return res.status(200).send(message)
     } catch (error) {
         return res.status(500).send(`save message error ${error}`)
+    }
+}
+
+export const getMessages = async(req,res)=>{
+    try {
+        const {conversationId} = req.params
+        const messages= await Message.find({conversationId})
+        return res.status(200).send(messages)
+    } catch (error) {
+        return res.status(500).send(`get message error ${error}`)
     }
 }

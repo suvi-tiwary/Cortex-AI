@@ -4,11 +4,13 @@ import Home from './pages/Home'
 import { useEffect } from 'react'
 import fetchCurrentUser from './features/fetchCurrentUser'
 import { getConversations } from './features/getConversations'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 
 const App = () => {
   const dispatch = useDispatch()
+  const {userData}= useSelector(state=>state.user)
+
 
   useEffect(()=>{
     const getUser = async()=>{
@@ -22,7 +24,11 @@ const App = () => {
       await getConversations(dispatch)
     }
     conversations()
-  },[])
+  },[userData?._id])
+
+
+   
+
   return (
     <Home/>
   )

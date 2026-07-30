@@ -1,6 +1,6 @@
-import { getModel } from "../LLMS"
+import { getModel } from "../LLMS.js"
 
-export const chatAgent = async(params)=>{
+export const chatAgent = async (params = {}) => {
     try {
         const llm = await getModel("chat")
         const systemPrompt = `
@@ -53,16 +53,16 @@ Always prioritize correctness, clarity, and usefulness.
                 content:systemPrompt
             },
             {
-                role:"human",
-                content:state.prompt
+                role: "human",
+                content: params.prompt
             }
         ])
 
         return {
-            ...state,
-               ai:response.content
+            ...params,
+            ai: response?.content ?? response
         }
     } catch (error) {
-        return resizeBy.status(500).send(`chat agent error ${error}`)
+        throw new Error(`chat agent error ${error?.message ?? error}`)
     }
 }

@@ -5,17 +5,30 @@ import { FiLogOut } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux"
 import { addConversation, setSelectedConversation } from '../redux/conversationSlice';
 import api from '../features/axios';
+import { setUserData } from '../redux/userSlice';
+import { FiMessageSquare } from "react-icons/fi";
 
 const Sidebar = () => {
   const dispatch = useDispatch()
   const {conversations,selectedConversation} = useSelector(state=>state.conversation)
+
   const createConversation = async()=>{
     try {
       let data = await api.get("/chat/create-conversation")
       dispatch(addConversation(data.data))
-
+      dispatch(setSelectedConversation(data.data))
     } catch (error) {
       console.log(`create coversation fetching error ${error}`)
+    }
+  }
+  
+    const handleLogout = async()=>{
+    try {
+      let data = await api.get("/auth/logout")
+      dispatch(setUserData(null))
+
+    } catch (error) {
+      console.log(`logout error ${error}`)
     }
   }
   
@@ -54,7 +67,8 @@ const Sidebar = () => {
       <div className='flex-1 overflow-y-auto px-2 custom-scrollbar'>
          {conversations.map((conv,i)=>{
            const isActive = selectedConversation?._id==conv?._id
-           return <div key={conv._id} className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] transition-colors duration-100 ${isActive?"bg-indigo-500/10 border-indigo-500/[0.18]":"bg-transparent border-transparent"}`} onClick={()=>dispatch(setSelectedConversation(conv))}>
+           return <div key={conv._id} className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] transition-colors duration-100 ${isActive?"bg-indigo-500/10 border-indigo-500/[0.18]":"bg-transparent border-transparent"} hover:bg-indigo-500/10`} onClick={()=>dispatch(setSelectedConversation(conv))}>
+                <div><FiMessageSquare /></div>
                 <span>{conv.title || "New Chat"}</span>
            </div>
          })}
@@ -70,7 +84,7 @@ const Sidebar = () => {
             <span className='text-white/80 text-sm font-medium'>Profile</span>
           </button>
           
-          <button className='p-2 rounded-xl hover:bg-red-500/10 transition-colors ml-2'>
+          <button className='p-2 rounded-xl hover:bg-red-500/10 transition-colors ml-2' onClick={handleLogout}>
             <FiLogOut size={20} color='#ef4444' />
           </button>
         </div>

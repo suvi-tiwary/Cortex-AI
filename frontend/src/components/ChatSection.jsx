@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Send,  Bot,  User, Code2,  FileText,  Image as ImageIcon,  Search, Presentation,  Zap, Mic, Paperclip,ThumbsUp,ThumbsDown,Copy,RotateCcw
 } from 'lucide-react';
 import api from '../features/axios';
+import { useDispatch, useSelector } from "react-redux"
+import ChatBubble from './ChatBubble';
+import { getMessages } from '../features/getMessgaes';
+import { addMessage } from '../redux/messageSlice';
+import { addConversation, setSelectedConversation } from '../redux/conversationSlice';
+
 
 const MODES = [
   { id: 'auto', label: 'Auto', icon: Zap },
@@ -15,6 +21,56 @@ const MODES = [
 
 
 const ChatSection = () => {
+  const {selectedConversation} = useSelector(state=>state.conversation)
+  const {message} = useSelector(state=>state.message)
+  const [value,setValue]=useState("")
+  const dispatch =useDispatch()
+  const skipInitialFetch = useRef(false)
+
+  const createConversation = async () => {
+    const response = await api.get("/chat/create-conversation")
+    dispatch(addConversation(response.data))
+    dispatch(setSelectedConversation(response.data))
+    skipInitialFetch.current = true
+    return response.data
+  }
+
+  const sendMessage = async ()=>{
+    if (!value.trim()) return
+
+    let conversation = selectedConversation
+    if (!conversation) {
+      conversation = await createConversation()
+    }
+
+    const prompt = value
+    dispatch(addMessage({ role: 'user', content: prompt }))
+    setValue("")
+
+    try {
+      const result = await api.post("/agent",{
+        conversationId: conversation._id,
+        prompt,
+      })
+      dispatch(addMessage({ role: 'ai', content: result.data }))
+      console.log(result.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(()=>{
+    if (!selectedConversation?._id) return
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false
+      return
+    }
+
+    const messages = async()=>{
+      await getMessages(selectedConversation._id,dispatch)
+    }
+    messages()
+  },[selectedConversation?._id, dispatch])
   
   return (
     <div className="flex-1 flex flex-col h-screen bg-[#0d0d12] relative overflow-hidden">
@@ -26,8 +82,8 @@ const ChatSection = () => {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto relative z-10 custom-scrollbar">
-        {/* Empty State */}
-        <div className="flex flex-col items-center justify-center h-full px-6 pt-[-40px]">
+        
+        {message.length==0 && <div className="flex flex-col items-center justify-center h-full px-6 pt-[-40px]">
           <div className="text-center max-w-2xl mx-auto -mt-16">
             <h1 className='text-4xl font-bold text-white mb-3 tracking-tight'>Cortext AI</h1>
             <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
@@ -38,32 +94,17 @@ const ChatSection = () => {
             </p>
 
           </div>
+        </div>}
+        {message.map((mes, i) => (
+        <div key={i}>
+         <ChatBubble role={mes.role} content={mes.content} />
         </div>
+        ))}
       </div>
 
       {/* Input Area */}
       <div className="relative z-20 border-t border-white/[0.06] bg-[#0d0d12]/90 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto px-6 py-7">
-          {/* Mode Selector */}
-          <div className="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
-            {MODES.map((mode) => {
-              const Icon = mode.icon;
-              return (
-                <button
-                  key={mode.id}
-                  className="
-                    group flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium
-                    transition-all duration-300 whitespace-nowrap
-                    bg-white/[0.03] text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-300 
-                    border border-transparent hover:border-white/[0.08]
-                  "
-                >
-                  <Icon className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400" />
-                  {mode.label}
-                </button>
-              );
-            })}
-          </div>
 
           {/* Input Box */}
           <div className="relative group">
@@ -80,6 +121,8 @@ const ChatSection = () => {
 
               {/* Textarea */}
               <textarea
+                onChange={(e)=>setValue(e.target.value)}
+                value={value}
                 placeholder="Ask CortexAI..."
                 rows={1}
                 className="
@@ -96,6 +139,7 @@ const ChatSection = () => {
 
               {/* Send Button */}
               <button
+                onClick={sendMessage}
                 className="
                   flex-shrink-0 p-3 rounded-xl transition-all duration-300
                   bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white 
@@ -114,14 +158,7 @@ const ChatSection = () => {
         </div>
       </div>
 
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
+     
     </div>
   );
 };

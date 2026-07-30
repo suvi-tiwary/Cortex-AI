@@ -6,7 +6,8 @@ const ConversationSchema = new mongoose.Schema({
         default:"New Chat"
     },
     userId:{
-        type:String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     message:[
             {
